@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Villanova Schedule Builder Pro</title>
+    <title>Villanova Schedule Builder v1.2</title>
     <style>
         :root { --nova-blue: #00205B; --nova-light-blue: #0069B1; --bg: #f2f4f7; --border: #ccd1d9; --danger: #dc3545; }
         
@@ -28,12 +28,49 @@
         
         .btn-sync { width: 100%; margin-top: 8px; padding: 8px; background: var(--nova-light-blue); color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 0.7rem; }
 
+
+        .schedule-tabs { display: flex; gap: 5px; margin: 10px 0 6px; }
+        .schedule-tab { flex: 1; min-width: 0; padding: 7px 5px; border: 1px solid #d7dce3; background: #f7f8fa; color: #555; border-radius: 5px; font-size: 0.68rem; font-weight: 700; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .schedule-tab:hover { border-color: var(--nova-light-blue); background: #f0f7ff; }
+        .schedule-tab.active { background: var(--nova-blue); border-color: var(--nova-blue); color: white; }
+        .schedule-tools { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+        .active-schedule-name { min-width: 0; flex: 1; font-size: 0.67rem; color: #777; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .btn-rename { flex: 0 0 auto; padding: 4px 8px; border: 1px solid #d7dce3; background: white; color: var(--nova-blue); border-radius: 4px; font-size: 0.65rem; font-weight: 700; cursor: pointer; }
+        .btn-rename:hover { border-color: var(--nova-light-blue); background: #f0f7ff; }
+
+        .filters-panel { margin-top: 8px; border: 1px solid #e1e5ea; border-radius: 6px; background: #fafbfc; overflow: hidden; }
+        .filters-panel summary { padding: 8px 9px; cursor: pointer; user-select: none; font-size: 0.68rem; font-weight: 800; color: var(--nova-blue); display: flex; align-items: center; justify-content: space-between; list-style: none; }
+        .filters-panel summary::-webkit-details-marker { display: none; }
+        .filter-count { background: var(--nova-light-blue); color: white; min-width: 18px; height: 18px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.6rem; padding: 0 5px; box-sizing: border-box; }
+        .filter-count.zero { background: #d9dee5; color: #666; }
+        .filters-body { padding: 0 8px 8px; border-top: 1px solid #eceff2; }
+        .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 8px; }
+        .filter-field label { display: block; font-size: 0.58rem; color: #777; font-weight: 700; margin-bottom: 3px; text-transform: uppercase; letter-spacing: 0.02em; }
+        .filter-field select { width: 100%; padding: 6px 5px; border: 1px solid #d9dee5; border-radius: 4px; background: white; font-size: 0.67rem; color: #333; outline: none; box-sizing: border-box; }
+        .filter-field select:focus { border-color: var(--nova-light-blue); }
+        .filter-section-label { margin-top: 8px; font-size: 0.58rem; color: #777; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
+        .day-filter { display: flex; gap: 4px; margin-top: 4px; }
+        .day-filter label { flex: 1; }
+        .day-filter input { display: none; }
+        .day-chip { display: block; text-align: center; padding: 5px 0; border-radius: 4px; border: 1px solid #d9dee5; background: white; font-size: 0.65rem; font-weight: 800; color: #777; cursor: pointer; }
+        .day-filter input:checked + .day-chip { background: #eaf4fb; border-color: var(--nova-light-blue); color: var(--nova-blue); }
+        .filter-check { display: flex; align-items: center; gap: 6px; margin-top: 8px; font-size: 0.64rem; color: #555; }
+        .filter-check input { width: auto; margin: 0; }
+        .filter-footer { display: flex; justify-content: flex-end; margin-top: 8px; }
+        .btn-reset-filters { padding: 4px 8px; border: 1px solid #d7dce3; background: white; color: #666; border-radius: 4px; font-size: 0.62rem; font-weight: 700; cursor: pointer; }
+        .btn-reset-filters:hover { border-color: var(--nova-light-blue); color: var(--nova-blue); }
+
         .course-card { padding: 10px; border: 1px solid #eee; margin-bottom: 8px; cursor: pointer; border-radius: 6px; font-size: 0.8rem; background: #fff; transition: background 0.2s; line-height: 1.4; }
         .course-card:hover { background: #f0f7ff; border-color: var(--nova-light-blue); }
 
-        .sel-item { position: relative; padding: 10px; margin-bottom: 10px; border-left: 6px solid #ccc; background: white; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 0.75rem; line-height: 1.4; }
+        .sel-item { position: relative; padding: 10px; padding-right: 54px; margin-bottom: 10px; border-left: 6px solid #ccc; background: white; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); font-size: 0.75rem; line-height: 1.4; }
+        .sel-item.pinned { background: #fffdf5; }
         .sel-item b { color: var(--nova-blue); display: block; margin-bottom: 3px; }
         .remove-x { position: absolute; top: 5px; right: 8px; cursor: pointer; color: #bbb; font-weight: bold; }
+        .pin-toggle { position: absolute; top: 4px; right: 28px; width: 20px; height: 20px; padding: 0; border: 1px solid transparent; border-radius: 4px; background: transparent; color: #aaa; cursor: pointer; font-size: 0.72rem; line-height: 18px; text-align: center; }
+        .pin-toggle:hover { background: #f3f5f7; color: var(--nova-blue); }
+        .pin-toggle.active { background: #fff0b8; border-color: #f0cf62; color: #7a5a00; }
+        .pin-label { display: inline-block; margin-left: 4px; padding: 1px 5px; border-radius: 8px; background: #fff0b8; color: #7a5a00; font-size: 0.55rem; font-weight: 800; vertical-align: 1px; }
 
         #main { flex: 1; display: flex; flex-direction: column; height: 100%; }
         .grid-header { display: grid; grid-template-columns: 80px repeat(5, 1fr); background: var(--nova-blue); color: white; text-align: center; padding: 12px 0; font-weight: bold; font-size: 0.9rem; }
@@ -58,10 +95,19 @@
 <div id="sidebar">
     <div class="side-pane-left">
         <div class="pane-header">
-            <h3 style="margin:0 0 10px 0; color:var(--nova-blue); font-size:1.1rem;">Nova Builder</h3>
+            <h3 style="margin:0 0 10px 0; color:var(--nova-blue); font-size:1.1rem;">Nova Builder <span style="font-size:0.62rem; color:#999; font-weight:600;">v1.2</span></h3>
             <div class="header-top">
                 <div class="credit-pill"><span id="total-credits">0</span> Credits</div>
                 <button class="btn-clear" onclick="clearAll()">Clear All</button>
+            </div>
+            <div class="schedule-tabs" aria-label="Saved schedules">
+                <button class="schedule-tab" id="schedule-tab-A" onclick="switchSchedule('A')" title="Switch to schedule A">Schedule A</button>
+                <button class="schedule-tab" id="schedule-tab-B" onclick="switchSchedule('B')" title="Switch to schedule B">Schedule B</button>
+                <button class="schedule-tab" id="schedule-tab-C" onclick="switchSchedule('C')" title="Switch to schedule C">Schedule C</button>
+            </div>
+            <div class="schedule-tools">
+                <div class="active-schedule-name">Editing: <b id="active-schedule-label">Schedule A</b></div>
+                <button class="btn-rename" onclick="renameActiveSchedule()">Rename</button>
             </div>
             <input type="text" id="query" placeholder="Search Title, Prof, CRN...">
             <div style="margin-top:10px;">
@@ -75,6 +121,29 @@
     <div class="side-pane-right">
         <div class="pane-header">
             <div style="font-size: 0.7rem; font-weight:bold; color:var(--nova-light-blue); text-transform:uppercase;">Search Results</div>
+            <details class="filters-panel" id="filters-panel">
+                <summary><span>Filters</span><span class="filter-count zero" id="active-filter-count">0</span></summary>
+                <div class="filters-body">
+                    <div class="filter-grid">
+                        <div class="filter-field"><label for="filter-subject">Subject</label><select id="filter-subject"><option value="">Any</option></select></div>
+                        <div class="filter-field"><label for="filter-type">Class type</label><select id="filter-type"><option value="">Any</option></select></div>
+                        <div class="filter-field"><label for="filter-method">Format</label><select id="filter-method"><option value="">Any</option></select></div>
+                        <div class="filter-field"><label for="filter-credit">Credits</label><select id="filter-credit"><option value="">Any</option></select></div>
+                        <div class="filter-field"><label for="filter-earliest">Earliest start</label><select id="filter-earliest"><option value="">Any</option></select></div>
+                        <div class="filter-field"><label for="filter-latest">Latest end</label><select id="filter-latest"><option value="">Any</option></select></div>
+                    </div>
+                    <div class="filter-section-label">Allowed weekdays</div>
+                    <div class="day-filter">
+                        <label><input type="checkbox" class="filter-day" value="monday" checked><span class="day-chip">M</span></label>
+                        <label><input type="checkbox" class="filter-day" value="tuesday" checked><span class="day-chip">T</span></label>
+                        <label><input type="checkbox" class="filter-day" value="wednesday" checked><span class="day-chip">W</span></label>
+                        <label><input type="checkbox" class="filter-day" value="thursday" checked><span class="day-chip">R</span></label>
+                        <label><input type="checkbox" class="filter-day" value="friday" checked><span class="day-chip">F</span></label>
+                    </div>
+                    <label class="filter-check"><input type="checkbox" id="filter-untimed" checked> Include TBD / by-arrangement meetings</label>
+                    <div class="filter-footer"><button class="btn-reset-filters" onclick="clearFilters()">Reset Filters</button></div>
+                </div>
+            </details>
         </div>
         <div class="pane-content" id="results"></div>
     </div>
@@ -269592,9 +269661,253 @@ const rawCourseData = {
     const weekdays = ['monday','tuesday','wednesday','thursday','friday'];
     const allDays = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
     const dayLabels = {monday:'M', tuesday:'T', wednesday:'W', thursday:'R', friday:'F', saturday:'Sa', sunday:'Su'};
+    const STORAGE_KEY = 'novaScheduleBuilder.spring2027.schedules.v1.2';
+    const PREVIOUS_STORAGE_KEY = 'novaScheduleBuilder.spring2027.schedules.v1.1';
+    const LEGACY_STORAGE_KEY = 'novaScheduleBuilder.spring2027.selectedCrns.v1';
+    const SLOT_IDS = ['A', 'B', 'C'];
+    let activeSlot = 'A';
+    let pinnedCrns = new Set();
+    let savedSchedules = {
+        A: { name: 'Schedule A', crns: [], pinnedCrns: [] },
+        B: { name: 'Schedule B', crns: [], pinnedCrns: [] },
+        C: { name: 'Schedule C', crns: [], pinnedCrns: [] }
+    };
+
+    function normalizeScheduleState(value) {
+        const normalized = {
+            activeSlot: SLOT_IDS.includes(value?.activeSlot) ? value.activeSlot : 'A',
+            schedules: {}
+        };
+        SLOT_IDS.forEach(slot => {
+            const entry = value?.schedules?.[slot];
+            const defaultName = `Schedule ${slot}`;
+            const crns = Array.isArray(entry?.crns) ? [...new Set(entry.crns.map(String).filter(Boolean))] : [];
+            const crnSet = new Set(crns);
+            normalized.schedules[slot] = {
+                name: (typeof entry?.name === 'string' && entry.name.trim()) ? entry.name.trim().slice(0, 40) : defaultName,
+                crns,
+                pinnedCrns: Array.isArray(entry?.pinnedCrns) ? [...new Set(entry.pinnedCrns.map(String).filter(crn => crnSet.has(crn)))] : []
+            };
+        });
+        return normalized;
+    }
+
+    function persistScheduleState() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                activeSlot,
+                schedules: savedSchedules
+            }));
+        } catch (err) {
+            console.warn('Local schedule save is unavailable in this browser/context.', err);
+        }
+    }
+
+    function saveSchedule() {
+        savedSchedules[activeSlot].crns = myClasses.map(courseKey).filter(Boolean);
+        savedSchedules[activeSlot].pinnedCrns = [...pinnedCrns].filter(crn => savedSchedules[activeSlot].crns.includes(crn));
+        persistScheduleState();
+        renderScheduleTabs();
+    }
+
+    function loadActiveScheduleClasses() {
+        const byCrn = new Map(rawCourseData.data.map(c => [courseKey(c), c]));
+        const crns = savedSchedules[activeSlot]?.crns || [];
+        myClasses = crns.map(crn => byCrn.get(String(crn))).filter(Boolean);
+        const selected = new Set(myClasses.map(courseKey));
+        pinnedCrns = new Set((savedSchedules[activeSlot]?.pinnedCrns || []).map(String).filter(crn => selected.has(crn)));
+    }
+
+    function restoreSchedules() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const state = normalizeScheduleState(JSON.parse(raw));
+                activeSlot = state.activeSlot;
+                savedSchedules = state.schedules;
+            } else {
+                // One-time migration from v1.1's named A/B/C schedules.
+                const previousRaw = localStorage.getItem(PREVIOUS_STORAGE_KEY);
+                if (previousRaw) {
+                    const state = normalizeScheduleState(JSON.parse(previousRaw));
+                    activeSlot = state.activeSlot;
+                    savedSchedules = state.schedules;
+                    persistScheduleState();
+                } else {
+                    // One-time migration from v1.0's single autosaved schedule.
+                    const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
+                    if (legacyRaw) {
+                        const legacyCrns = JSON.parse(legacyRaw);
+                        if (Array.isArray(legacyCrns)) {
+                            savedSchedules.A.crns = [...new Set(legacyCrns.map(String).filter(Boolean))];
+                        }
+                        persistScheduleState();
+                    }
+                }
+            }
+        } catch (err) {
+            console.warn('Saved schedules could not be restored.', err);
+        }
+        loadActiveScheduleClasses();
+        renderScheduleTabs();
+    }
+
+    function renderScheduleTabs() {
+        SLOT_IDS.forEach(slot => {
+            const tab = document.getElementById(`schedule-tab-${slot}`);
+            if (!tab) return;
+            const name = savedSchedules[slot]?.name || `Schedule ${slot}`;
+            tab.textContent = name;
+            tab.title = `Switch to ${name}`;
+            tab.classList.toggle('active', slot === activeSlot);
+        });
+        const label = document.getElementById('active-schedule-label');
+        if (label) label.textContent = savedSchedules[activeSlot]?.name || `Schedule ${activeSlot}`;
+    }
+
+    function switchSchedule(slot) {
+        if (!SLOT_IDS.includes(slot) || slot === activeSlot) return;
+        savedSchedules[activeSlot].crns = myClasses.map(courseKey).filter(Boolean);
+        savedSchedules[activeSlot].pinnedCrns = [...pinnedCrns].filter(crn => savedSchedules[activeSlot].crns.includes(crn));
+        activeSlot = slot;
+        loadActiveScheduleClasses();
+        persistScheduleState();
+        renderScheduleTabs();
+        draw();
+    }
+
+    function renameActiveSchedule() {
+        const currentName = savedSchedules[activeSlot]?.name || `Schedule ${activeSlot}`;
+        const proposed = prompt(`Rename ${currentName}:`, currentName);
+        if (proposed === null) return;
+        const cleanName = proposed.trim().slice(0, 40);
+        if (!cleanName) {
+            alert('Schedule name cannot be blank.');
+            return;
+        }
+        savedSchedules[activeSlot].name = cleanName;
+        persistScheduleState();
+        renderScheduleTabs();
+    }
 
     function courseKey(c) {
         return String(c?.courseReferenceNumber ?? c?.id ?? '');
+    }
+
+    function togglePin(crn) {
+        crn = String(crn);
+        if (!myClasses.some(c => courseKey(c) === crn)) return;
+        if (pinnedCrns.has(crn)) pinnedCrns.delete(crn);
+        else pinnedCrns.add(crn);
+        saveSchedule();
+        draw();
+    }
+
+    function populateFilterOptions() {
+        const subjects = [...new Set(rawCourseData.data.map(c => decodeEntities(c.subject || '')).filter(Boolean))].sort();
+        const types = [...new Set(rawCourseData.data.map(c => decodeEntities(c.scheduleTypeDescription || '')).filter(Boolean))].sort();
+        const methods = [...new Set(rawCourseData.data.map(c => decodeEntities(c.instructionalMethodDescription || '')).filter(Boolean))].sort();
+        const credits = [...new Set(rawCourseData.data.map(getCredits).filter(v => Number.isFinite(v) && v > 0))].sort((a,b) => a-b);
+
+        const addOptions = (id, values, formatter = v => v) => {
+            const select = document.getElementById(id);
+            values.forEach(value => {
+                const option = document.createElement('option');
+                option.value = String(value);
+                option.textContent = formatter(value);
+                select.appendChild(option);
+            });
+        };
+        addOptions('filter-subject', subjects);
+        addOptions('filter-type', types);
+        addOptions('filter-method', methods);
+        addOptions('filter-credit', credits, v => `${v} cr`);
+
+        const earliest = document.getElementById('filter-earliest');
+        const latest = document.getElementById('filter-latest');
+        for (let mins = 480; mins <= 1260; mins += 30) {
+            const hh = String(Math.floor(mins / 60)).padStart(2, '0');
+            const mm = String(mins % 60).padStart(2, '0');
+            const value = `${hh}${mm}`;
+            const label = formatTime(value);
+            const a = document.createElement('option'); a.value = String(mins); a.textContent = label; earliest.appendChild(a);
+            const b = document.createElement('option'); b.value = String(mins); b.textContent = label; latest.appendChild(b);
+        }
+        const finalOpt = document.createElement('option'); finalOpt.value = '1320'; finalOpt.textContent = '10:00PM'; latest.appendChild(finalOpt);
+
+        document.querySelectorAll('#filters-panel select, #filters-panel input').forEach(el => {
+            el.addEventListener('change', () => { updateFilterCount(); renderSearchResults(); });
+        });
+        updateFilterCount();
+    }
+
+    function getFilterState() {
+        return {
+            subject: document.getElementById('filter-subject')?.value || '',
+            type: document.getElementById('filter-type')?.value || '',
+            method: document.getElementById('filter-method')?.value || '',
+            credit: document.getElementById('filter-credit')?.value || '',
+            earliest: document.getElementById('filter-earliest')?.value || '',
+            latest: document.getElementById('filter-latest')?.value || '',
+            allowedDays: new Set([...document.querySelectorAll('.filter-day:checked')].map(el => el.value)),
+            includeUntimed: document.getElementById('filter-untimed')?.checked !== false
+        };
+    }
+
+    function activeFilterCount() {
+        const f = getFilterState();
+        let count = [f.subject, f.type, f.method, f.credit, f.earliest, f.latest].filter(Boolean).length;
+        if (f.allowedDays.size < 5) count++;
+        if (!f.includeUntimed) count++;
+        return count;
+    }
+
+    function updateFilterCount() {
+        const count = activeFilterCount();
+        const badge = document.getElementById('active-filter-count');
+        if (!badge) return;
+        badge.textContent = count;
+        badge.classList.toggle('zero', count === 0);
+    }
+
+    function clearFilters() {
+        ['filter-subject','filter-type','filter-method','filter-credit','filter-earliest','filter-latest'].forEach(id => {
+            const el = document.getElementById(id); if (el) el.value = '';
+        });
+        document.querySelectorAll('.filter-day').forEach(el => el.checked = true);
+        const untimed = document.getElementById('filter-untimed'); if (untimed) untimed.checked = true;
+        updateFilterCount();
+        renderSearchResults();
+    }
+
+    function coursePassesFilters(c, f = getFilterState()) {
+        if (f.subject && String(c.subject || '') !== f.subject) return false;
+        if (f.type && decodeEntities(c.scheduleTypeDescription || '') !== f.type) return false;
+        if (f.method && decodeEntities(c.instructionalMethodDescription || '') !== f.method) return false;
+        if (f.credit && Math.abs(getCredits(c) - Number(f.credit)) > 1e-9) return false;
+
+        const meetings = getMeetings(c);
+        const timed = meetings.filter(isTimedMeeting);
+        const hasUntimed = meetings.length === 0 || meetings.some(m => !isTimedMeeting(m));
+        if (hasUntimed && !f.includeUntimed) return false;
+
+        for (const m of meetings) {
+            for (const day of weekdays) {
+                if (m?.[day] && !f.allowedDays.has(day)) return false;
+            }
+        }
+
+        if (f.earliest) {
+            const earliest = Number(f.earliest);
+            if (timed.some(m => toMins(m.beginTime) < earliest)) return false;
+            if (!timed.length && !f.includeUntimed) return false;
+        }
+        if (f.latest) {
+            const latest = Number(f.latest);
+            if (timed.some(m => toMins(m.endTime) > latest)) return false;
+            if (!timed.length && !f.includeUntimed) return false;
+        }
+        return true;
     }
 
     function getCol(crn) {
@@ -269822,8 +270135,11 @@ const rawCourseData = {
 
     function clearAll() {
         if (myClasses.length === 0) return;
-        if (confirm('Are you sure you want to clear your entire schedule?')) {
+        const scheduleName = savedSchedules[activeSlot]?.name || `Schedule ${activeSlot}`;
+        if (confirm(`Are you sure you want to clear ${scheduleName}?`)) {
             myClasses = [];
+            pinnedCrns.clear();
+            saveSchedule();
             draw();
         }
     }
@@ -269861,14 +270177,17 @@ const rawCourseData = {
                 : '<div style="color:#666; font-size:0.65rem; margin-top:2px;">📅 Meeting TBD</div>';
 
             const item = document.createElement('div');
-            item.className = 'sel-item';
+            const isPinned = pinnedCrns.has(courseKey(c));
+            item.className = `sel-item${isPinned ? ' pinned' : ''}`;
             item.style.borderLeftColor = color;
             item.innerHTML = `
                 <div class="remove-x" title="Remove">✕</div>
-                <b>${escapeHtml(c.subject)} ${escapeHtml(c.courseNumber)}: ${escapeHtml(c.courseTitle)}</b>
+                <button class="pin-toggle${isPinned ? ' active' : ''}" title="${isPinned ? 'Unpin section' : 'Pin section'}" aria-pressed="${isPinned}">📌</button>
+                <b>${escapeHtml(c.subject)} ${escapeHtml(c.courseNumber)}: ${escapeHtml(c.courseTitle)}${isPinned ? '<span class="pin-label">PINNED</span>' : ''}</b>
                 <div style="color:#444; font-size:0.7rem; margin-top:2px;">👤 ${escapeHtml(prof)}</div>
                 ${meetingLines}`;
             item.querySelector('.remove-x').onclick = () => rem(courseKey(c));
+            item.querySelector('.pin-toggle').onclick = () => togglePin(courseKey(c));
             list.appendChild(item);
         });
 
@@ -269906,7 +270225,7 @@ const rawCourseData = {
                 block.style.top = (topPercent * gridRect.height / 100 + 2) + 'px';
                 block.style.left = (80 + dayIdx * colWidth + lane * (colWidth / totalLanes) + 2) + 'px';
                 block.innerHTML = `
-                    <div>${escapeHtml(c.subject)} ${escapeHtml(c.courseNumber)}</div>
+                    <div>${pinnedCrns.has(courseKey(c)) ? '📌 ' : ''}${escapeHtml(c.subject)} ${escapeHtml(c.courseNumber)}</div>
                     <div style="font-weight:normal; opacity:0.9;">${escapeHtml(formatTime(m.beginTime))}</div>
                     <div style="font-weight:normal; opacity:0.8; font-size:0.55rem; margin-top:2px;">📍 ${escapeHtml(getLocation(m))}</div>`;
                 overlay.appendChild(block);
@@ -269919,6 +270238,7 @@ const rawCourseData = {
             list.innerHTML = '<div style="text-align:center; color:#ccc; margin-top:20px;">No classes added yet</div>';
             document.getElementById('crn-sync').value = '';
         }
+        if (typeof renderSearchResults === 'function') renderSearchResults();
     }
 
     function addClass(c) {
@@ -269929,11 +270249,15 @@ const rawCourseData = {
             alert(`⚠️ TIME CONFLICT!\n\nThis class overlaps with:\n- ${conflicts.join('\n- ')}\n\n(The class will still be added side-by-side.)`);
         }
         myClasses.push(c);
+        saveSchedule();
         draw();
     }
 
     function rem(crn) {
-        myClasses = myClasses.filter(x => courseKey(x) !== String(crn));
+        crn = String(crn);
+        myClasses = myClasses.filter(x => courseKey(x) !== crn);
+        pinnedCrns.delete(crn);
+        saveSchedule();
         draw();
     }
 
@@ -269953,20 +270277,27 @@ const rawCourseData = {
             myClasses.push(course);
         });
 
+        const selectedAfterLoad = new Set(myClasses.map(courseKey));
+        pinnedCrns = new Set([...pinnedCrns].filter(crn => selectedAfterLoad.has(crn)));
+        saveSchedule();
         draw();
         if (conflictPairs.size > 0) {
             alert(`⚠️ TIME CONFLICT${conflictPairs.size > 1 ? 'S' : ''}!\n\n${[...conflictPairs].join('\n')}\n\nConflicting classes are displayed side-by-side.`);
         }
     }
 
-    document.getElementById('query').addEventListener('input', (e) => {
-        const q = e.target.value.toLowerCase().trim();
+    function renderSearchResults() {
+        const q = document.getElementById('query').value.toLowerCase().trim();
         const r = document.getElementById('results');
         r.innerHTML = '';
-        if (q.length < 2) return;
+        const filterCount = activeFilterCount();
+        if (q.length < 2 && filterCount === 0) return;
 
         const compactQuery = q.replace(/\s+/g, '');
+        const filters = getFilterState();
         const matches = rawCourseData.data.filter(c => {
+            if (!coursePassesFilters(c, filters)) return false;
+            if (q.length < 2) return true;
             const codeNoSpace = `${c.subject || ''}${c.courseNumber || ''}`.toLowerCase();
             const professorText = getProfessors(c).toLowerCase();
             return decodeEntities(c.courseTitle || '').toLowerCase().includes(q) ||
@@ -269978,6 +270309,11 @@ const rawCourseData = {
                    professorText.includes(q);
         }).slice(0, 30);
 
+        if (!matches.length) {
+            r.innerHTML = '<div style="text-align:center; color:#aaa; font-size:0.72rem; margin-top:20px;">No matching sections</div>';
+            return;
+        }
+
         matches.forEach(c => {
             const d = document.createElement('div');
             d.className = 'course-card';
@@ -269986,11 +270322,10 @@ const rawCourseData = {
                 ? meetings.map(m => meetingText(m)).join(' • ')
                 : 'Meeting TBD';
             const creditLabel = getCreditLabel(c);
-            const seats = numericValue(c.seatsAvailable);
-            const seatLabel = seats !== null
-                ? `${seats} seat${seats === 1 ? '' : 's'} open`
-                : '';
-            const meta = [creditLabel, seatLabel].filter(Boolean).join(' · ');
+            const typeLabel = decodeEntities(c.scheduleTypeDescription || '');
+            const methodLabel = decodeEntities(c.instructionalMethodDescription || '');
+            const meta = [creditLabel, typeLabel, methodLabel].filter(Boolean).join(' · ');
+            const alreadyAdded = myClasses.some(x => courseKey(x) === courseKey(c));
 
             d.innerHTML = `
                 <b>${escapeHtml(c.subject)} ${escapeHtml(c.courseNumber)}</b>
@@ -269998,14 +270333,19 @@ const rawCourseData = {
                 <div style="font-size:0.75rem; color:#333;">${escapeHtml(c.courseTitle)}</div>
                 <div style="font-size:0.7rem; color:var(--nova-light-blue); font-weight:600;">📅 ${escapeHtml(meetingSummary)}</div>
                 <div style="font-size:0.7rem; color:#666;">👤 ${escapeHtml(getProfessors(c))}</div>
-                ${meta ? `<div style="font-size:0.65rem; color:#888;">${escapeHtml(meta)}</div>` : ''}`;
+                ${meta ? `<div style="font-size:0.65rem; color:#888;">${escapeHtml(meta)}</div>` : ''}
+                ${alreadyAdded ? '<div style="font-size:0.62rem; color:#2f7d32; font-weight:800; margin-top:2px;">✓ Added to current schedule</div>' : ''}`;
             d.onclick = () => addClass(c);
             r.appendChild(d);
         });
-    });
+    }
+
+    document.getElementById('query').addEventListener('input', renderSearchResults);
 
     window.onload = () => {
         buildBackground();
+        populateFilterOptions();
+        restoreSchedules();
         draw();
         window.onresize = draw;
     };
