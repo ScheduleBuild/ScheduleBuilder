@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Villanova Schedule Builder v1.2</title>
+    <title>Schedule Builder v2.0.2</title>
     <style>
         :root { --nova-blue: #00205B; --nova-light-blue: #0069B1; --bg: #f2f4f7; --border: #ccd1d9; --danger: #dc3545; }
         
@@ -60,6 +60,48 @@
         .btn-reset-filters { padding: 4px 8px; border: 1px solid #d7dce3; background: white; color: #666; border-radius: 4px; font-size: 0.62rem; font-weight: 700; cursor: pointer; }
         .btn-reset-filters:hover { border-color: var(--nova-light-blue); color: var(--nova-blue); }
 
+        .planner-tools { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 8px; }
+        .btn-planner { padding: 7px 6px; border: 1px solid #d7dce3; border-radius: 5px; background: white; color: var(--nova-blue); font-size: 0.66rem; font-weight: 800; cursor: pointer; }
+        .btn-planner:hover { border-color: var(--nova-light-blue); background: #f0f7ff; }
+        .btn-generate { background: var(--nova-blue); color: white; border-color: var(--nova-blue); }
+        .btn-generate:hover { background: #003a7a; }
+        .avoid-editor { display: none; padding: 8px; margin-bottom: 8px; border: 1px solid #e0e4ea; border-radius: 6px; background: #fafbfc; }
+        .avoid-editor.open { display: block; }
+        .avoid-row { display: grid; grid-template-columns: 0.8fr 1fr 1fr; gap: 5px; margin-bottom: 5px; }
+        .avoid-editor select, .avoid-editor input { width: 100%; padding: 6px; border: 1px solid #d9dee5; border-radius: 4px; font-size: 0.67rem; box-sizing: border-box; background: white; }
+        .avoid-add-row { display: grid; grid-template-columns: 1fr auto; gap: 5px; }
+        .avoid-add-row button { padding: 6px 9px; border: none; border-radius: 4px; background: var(--danger); color: white; font-size: 0.65rem; font-weight: 800; cursor: pointer; }
+        .list-section-title { margin: 2px 0 7px; color: #999; font-size: 0.58rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+        .avoid-item { position: relative; padding: 8px 28px 8px 9px; margin-bottom: 7px; border-left: 5px solid #c84b4b; background: #fff5f5; border-radius: 4px; font-size: 0.7rem; line-height: 1.35; }
+        .avoid-item b { color: #8e2f2f; }
+        .avoid-remove { position: absolute; top: 5px; right: 8px; cursor: pointer; color: #b88; font-weight: bold; }
+        .avoid-block { position: absolute; z-index: 5; box-sizing: border-box; border: 1px dashed rgba(160,45,45,0.7); border-radius: 4px; background: repeating-linear-gradient(135deg, rgba(220,53,69,0.16), rgba(220,53,69,0.16) 6px, rgba(220,53,69,0.08) 6px, rgba(220,53,69,0.08) 12px); color: #8d3038; font-size: 0.58rem; font-weight: 800; padding: 3px; overflow: hidden; pointer-events: none; }
+
+        .modal-backdrop { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.38); align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .modal-backdrop.open { display: flex; }
+        .generator-modal { width: min(780px, 96vw); max-height: 90vh; overflow: hidden; background: white; border-radius: 10px; box-shadow: 0 18px 50px rgba(0,0,0,0.25); display: flex; flex-direction: column; }
+        .generator-head { padding: 15px 17px; border-bottom: 1px solid #e7e9ed; display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+        .generator-head h3 { margin: 0; color: var(--nova-blue); font-size: 1rem; }
+        .generator-head p { margin: 4px 0 0; color: #777; font-size: 0.7rem; line-height: 1.4; }
+        .modal-close { border: none; background: transparent; color: #999; cursor: pointer; font-size: 1.2rem; line-height: 1; }
+        .generator-body { padding: 14px 17px 17px; overflow-y: auto; }
+        .generator-summary { padding: 9px 10px; border-radius: 6px; background: #f3f7fb; color: #34495e; font-size: 0.7rem; line-height: 1.45; margin-bottom: 10px; }
+        .generator-prefs { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 10px; font-size: 0.68rem; color: #444; }
+        .generator-prefs label { display: flex; align-items: center; gap: 5px; }
+        .generator-prefs input { width: auto; padding: 0; }
+        .generator-actions { display: flex; gap: 7px; align-items: center; margin-bottom: 12px; }
+        .generator-actions button { padding: 8px 12px; border-radius: 5px; border: 1px solid #d5dbe2; background: white; color: var(--nova-blue); font-weight: 800; font-size: 0.7rem; cursor: pointer; }
+        .generator-actions .primary { color: white; background: var(--nova-blue); border-color: var(--nova-blue); }
+        .generator-status { color: #777; font-size: 0.66rem; }
+        .generator-results { display: grid; gap: 8px; }
+        .generator-result { border: 1px solid #dde2e8; border-radius: 7px; padding: 10px; background: white; }
+        .generator-result-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+        .generator-rank { color: var(--nova-blue); font-weight: 900; font-size: 0.78rem; }
+        .generator-metrics { margin-top: 3px; color: #666; font-size: 0.65rem; }
+        .generator-use { padding: 6px 9px; border: none; border-radius: 4px; background: var(--nova-light-blue); color: white; font-size: 0.65rem; font-weight: 800; cursor: pointer; white-space: nowrap; }
+        .generator-sections { margin-top: 7px; color: #444; font-size: 0.65rem; line-height: 1.45; }
+        .generator-note { color: #888; font-size: 0.62rem; margin-top: 8px; }
+
         .course-card { padding: 10px; border: 1px solid #eee; margin-bottom: 8px; cursor: pointer; border-radius: 6px; font-size: 0.8rem; background: #fff; transition: background 0.2s; line-height: 1.4; }
         .course-card:hover { background: #f0f7ff; border-color: var(--nova-light-blue); }
 
@@ -81,6 +123,21 @@
         .time-label { border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: flex-end; padding-right: 12px; font-size: 0.75rem; color: #999; }
         .grid-line { border-bottom: 1px solid #f0f0f0; border-left: 1px solid #f0f0f0; }
 
+
+        .data-disclaimer {
+            position: relative; margin-top: 10px; padding: 8px 28px 8px 9px; border: 1px solid #ead7a1;
+            border-radius: 6px; background: #fff9e8; color: #66531c;
+            font-size: 0.62rem; line-height: 1.35;
+        }
+        .data-disclaimer strong { color: #57430a; }
+        .disclaimer-close {
+            position: absolute; top: 4px; right: 6px; width: 18px; height: 18px; padding: 0;
+            border: none; background: transparent; color: #8b7640; cursor: pointer;
+            font-size: 0.9rem; font-weight: 700; line-height: 18px; text-align: center;
+            border-radius: 4px;
+        }
+        .disclaimer-close:hover { background: rgba(102,83,28,0.10); color: #57430a; }
+
         .class-block {
             position: absolute; border-radius: 4px; padding: 4px; color: white; 
             font-size: 0.62rem; font-weight: bold; overflow: hidden; 
@@ -95,7 +152,7 @@
 <div id="sidebar">
     <div class="side-pane-left">
         <div class="pane-header">
-            <h3 style="margin:0 0 10px 0; color:var(--nova-blue); font-size:1.1rem;">Nova Builder <span style="font-size:0.62rem; color:#999; font-weight:600;">v1.2</span></h3>
+            <h3 style="margin:0 0 10px 0; color:var(--nova-blue); font-size:1.1rem;">Schedule Builder <span style="font-size:0.62rem; color:#999; font-weight:600;">v2.0.2</span></h3>
             <div class="header-top">
                 <div class="credit-pill"><span id="total-credits">0</span> Credits</div>
                 <button class="btn-clear" onclick="clearAll()">Clear All</button>
@@ -109,10 +166,31 @@
                 <div class="active-schedule-name">Editing: <b id="active-schedule-label">Schedule A</b></div>
                 <button class="btn-rename" onclick="renameActiveSchedule()">Rename</button>
             </div>
+            <div class="planner-tools">
+                <button class="btn-planner" onclick="toggleAvoidEditor()">＋ Avoid Time</button>
+                <button class="btn-planner btn-generate" onclick="openGenerator()">⚙ Generate</button>
+            </div>
+            <div class="avoid-editor" id="avoid-editor">
+                <div class="avoid-row">
+                    <select id="avoid-day" aria-label="Unavailable day">
+                        <option value="monday">Mon</option><option value="tuesday">Tue</option><option value="wednesday">Wed</option><option value="thursday">Thu</option><option value="friday">Fri</option>
+                    </select>
+                    <select id="avoid-start" aria-label="Unavailable start"></select>
+                    <select id="avoid-end" aria-label="Unavailable end"></select>
+                </div>
+                <div class="avoid-add-row">
+                    <input id="avoid-label" maxlength="30" placeholder="Label (optional, e.g. practice)">
+                    <button onclick="addAvoidTime()">ADD</button>
+                </div>
+            </div>
             <input type="text" id="query" placeholder="Search Title, Prof, CRN...">
             <div style="margin-top:10px;">
                 <textarea id="crn-sync" rows="1" placeholder="Paste CRNs..."></textarea>
                 <button class="btn-sync" onclick="loadFromSync()">LOAD CRNs</button>
+            </div>
+            <div class="data-disclaimer" role="note" aria-label="Course data disclaimer">
+                <button class="disclaimer-close" type="button" aria-label="Dismiss disclaimer" title="Dismiss" onclick="this.parentElement.style.display='none'">×</button>
+                <strong>⚠ Course Data Disclaimer:</strong> Course information is a static snapshot collected on <strong>October 3, 2026</strong>. It does not update in real time or reflect changes made after that date. Information may be inaccurate, incomplete, outdated, or missing, including entire courses or sections. Verify course and schedule details using an official source before making registration decisions.
             </div>
         </div>
         <div class="pane-content" id="selected-list"></div>
@@ -156,6 +234,34 @@
     <div class="grid-container">
         <div id="grid-bg" class="grid"></div>
         <div id="grid-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></div>
+    </div>
+</div>
+
+<div class="modal-backdrop" id="generator-backdrop" onclick="if(event.target===this) closeGenerator()">
+    <div class="generator-modal" role="dialog" aria-modal="true" aria-labelledby="generator-title">
+        <div class="generator-head">
+            <div>
+                <h3 id="generator-title">Automatic Schedule Generator</h3>
+                <p>Uses the courses currently added to this schedule. Pinned sections stay fixed and unavailable-time blocks are treated as hard constraints.</p>
+            </div>
+            <button class="modal-close" onclick="closeGenerator()" aria-label="Close">×</button>
+        </div>
+        <div class="generator-body">
+            <div class="generator-summary" id="generator-summary"></div>
+            <div class="generator-prefs">
+                <label><input type="checkbox" id="pref-gaps" checked> Minimize gaps</label>
+                <label><input type="checkbox" id="pref-days" checked> Fewer campus days</label>
+                <label><input type="checkbox" id="pref-late"> Prefer later starts</label>
+                <label><input type="checkbox" id="pref-early-finish"> Prefer earlier finishes</label>
+                <label><input type="checkbox" id="pref-no-friday"> Prefer no Friday</label>
+            </div>
+            <div class="generator-actions">
+                <button class="primary" onclick="generateSchedules()">Find Best Schedules</button>
+                <span class="generator-status" id="generator-status"></span>
+            </div>
+            <div class="generator-results" id="generator-results"></div>
+            <div class="generator-note">Search filters affect search results only; they do not remove sections from automatic generation.</div>
+        </div>
     </div>
 </div>
 
@@ -269661,16 +269767,18 @@ const rawCourseData = {
     const weekdays = ['monday','tuesday','wednesday','thursday','friday'];
     const allDays = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
     const dayLabels = {monday:'M', tuesday:'T', wednesday:'W', thursday:'R', friday:'F', saturday:'Sa', sunday:'Su'};
-    const STORAGE_KEY = 'novaScheduleBuilder.spring2027.schedules.v1.2';
-    const PREVIOUS_STORAGE_KEY = 'novaScheduleBuilder.spring2027.schedules.v1.1';
+    const STORAGE_KEY = 'novaScheduleBuilder.spring2027.schedules.v2.0';
+    const PREVIOUS_STORAGE_KEY = 'novaScheduleBuilder.spring2027.schedules.v1.2';
     const LEGACY_STORAGE_KEY = 'novaScheduleBuilder.spring2027.selectedCrns.v1';
     const SLOT_IDS = ['A', 'B', 'C'];
     let activeSlot = 'A';
     let pinnedCrns = new Set();
+    let avoidTimes = [];
+    let generatedSchedules = [];
     let savedSchedules = {
-        A: { name: 'Schedule A', crns: [], pinnedCrns: [] },
-        B: { name: 'Schedule B', crns: [], pinnedCrns: [] },
-        C: { name: 'Schedule C', crns: [], pinnedCrns: [] }
+        A: { name: 'Schedule A', crns: [], pinnedCrns: [], avoidTimes: [] },
+        B: { name: 'Schedule B', crns: [], pinnedCrns: [], avoidTimes: [] },
+        C: { name: 'Schedule C', crns: [], pinnedCrns: [], avoidTimes: [] }
     };
 
     function normalizeScheduleState(value) {
@@ -269683,10 +269791,18 @@ const rawCourseData = {
             const defaultName = `Schedule ${slot}`;
             const crns = Array.isArray(entry?.crns) ? [...new Set(entry.crns.map(String).filter(Boolean))] : [];
             const crnSet = new Set(crns);
+            const cleanAvoidTimes = Array.isArray(entry?.avoidTimes) ? entry.avoidTimes.map((a, idx) => ({
+                id: String(a?.id || `migrated-${slot}-${idx}`),
+                day: weekdays.includes(a?.day) ? a.day : 'monday',
+                start: Number(a?.start),
+                end: Number(a?.end),
+                label: typeof a?.label === 'string' ? a.label.trim().slice(0, 30) : ''
+            })).filter(a => Number.isFinite(a.start) && Number.isFinite(a.end) && a.end > a.start) : [];
             normalized.schedules[slot] = {
                 name: (typeof entry?.name === 'string' && entry.name.trim()) ? entry.name.trim().slice(0, 40) : defaultName,
                 crns,
-                pinnedCrns: Array.isArray(entry?.pinnedCrns) ? [...new Set(entry.pinnedCrns.map(String).filter(crn => crnSet.has(crn)))] : []
+                pinnedCrns: Array.isArray(entry?.pinnedCrns) ? [...new Set(entry.pinnedCrns.map(String).filter(crn => crnSet.has(crn)))] : [],
+                avoidTimes: cleanAvoidTimes
             };
         });
         return normalized;
@@ -269706,6 +269822,7 @@ const rawCourseData = {
     function saveSchedule() {
         savedSchedules[activeSlot].crns = myClasses.map(courseKey).filter(Boolean);
         savedSchedules[activeSlot].pinnedCrns = [...pinnedCrns].filter(crn => savedSchedules[activeSlot].crns.includes(crn));
+        savedSchedules[activeSlot].avoidTimes = avoidTimes.map(a => ({...a}));
         persistScheduleState();
         renderScheduleTabs();
     }
@@ -269716,6 +269833,7 @@ const rawCourseData = {
         myClasses = crns.map(crn => byCrn.get(String(crn))).filter(Boolean);
         const selected = new Set(myClasses.map(courseKey));
         pinnedCrns = new Set((savedSchedules[activeSlot]?.pinnedCrns || []).map(String).filter(crn => selected.has(crn)));
+        avoidTimes = Array.isArray(savedSchedules[activeSlot]?.avoidTimes) ? savedSchedules[activeSlot].avoidTimes.map(a => ({...a})) : [];
     }
 
     function restoreSchedules() {
@@ -269726,7 +269844,7 @@ const rawCourseData = {
                 activeSlot = state.activeSlot;
                 savedSchedules = state.schedules;
             } else {
-                // One-time migration from v1.1's named A/B/C schedules.
+                // One-time migration from v1.2's named schedules, pins, and filters-era state.
                 const previousRaw = localStorage.getItem(PREVIOUS_STORAGE_KEY);
                 if (previousRaw) {
                     const state = normalizeScheduleState(JSON.parse(previousRaw));
@@ -269769,6 +269887,7 @@ const rawCourseData = {
         if (!SLOT_IDS.includes(slot) || slot === activeSlot) return;
         savedSchedules[activeSlot].crns = myClasses.map(courseKey).filter(Boolean);
         savedSchedules[activeSlot].pinnedCrns = [...pinnedCrns].filter(crn => savedSchedules[activeSlot].crns.includes(crn));
+        savedSchedules[activeSlot].avoidTimes = avoidTimes.map(a => ({...a}));
         activeSlot = slot;
         loadActiveScheduleClasses();
         persistScheduleState();
@@ -269801,6 +269920,305 @@ const rawCourseData = {
         else pinnedCrns.add(crn);
         saveSchedule();
         draw();
+    }
+
+    function toggleAvoidEditor() {
+        const editor = document.getElementById('avoid-editor');
+        if (editor) editor.classList.toggle('open');
+    }
+
+    function minsToInputTime(mins) {
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return `${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}`;
+    }
+
+    function formatMins(mins) {
+        return formatTime(minsToInputTime(mins));
+    }
+
+    function populateAvoidTimeOptions() {
+        const start = document.getElementById('avoid-start');
+        const end = document.getElementById('avoid-end');
+        if (!start || !end) return;
+        for (let mins = 480; mins <= 1290; mins += 15) {
+            const opt = document.createElement('option');
+            opt.value = String(mins); opt.textContent = formatMins(mins); start.appendChild(opt);
+        }
+        for (let mins = 495; mins <= 1320; mins += 15) {
+            const opt = document.createElement('option');
+            opt.value = String(mins); opt.textContent = formatMins(mins); end.appendChild(opt);
+        }
+        start.value = '720';
+        end.value = '780';
+    }
+
+    function avoidLabel(a) {
+        const day = dayLabels[a.day] || a.day;
+        return `${day} ${formatMins(a.start)}-${formatMins(a.end)}${a.label ? ` · ${a.label}` : ''}`;
+    }
+
+    function addAvoidTime() {
+        const day = document.getElementById('avoid-day')?.value;
+        const start = Number(document.getElementById('avoid-start')?.value);
+        const end = Number(document.getElementById('avoid-end')?.value);
+        const label = (document.getElementById('avoid-label')?.value || '').trim().slice(0, 30);
+        if (!weekdays.includes(day) || !Number.isFinite(start) || !Number.isFinite(end) || end <= start) {
+            alert('Please choose a valid unavailable time range.');
+            return;
+        }
+        const duplicate = avoidTimes.some(a => a.day === day && a.start === start && a.end === end && a.label === label);
+        if (duplicate) return;
+        const id = `${day}-${start}-${end}-${Date.now()}-${Math.random().toString(36).slice(2,7)}`;
+        const block = {id, day, start, end, label};
+        avoidTimes.push(block);
+        avoidTimes.sort((a,b) => weekdays.indexOf(a.day) - weekdays.indexOf(b.day) || a.start - b.start || a.end - b.end);
+        const conflicts = myClasses.filter(c => courseConflictsWithAvoid(c, [block])).map(c => `${c.subject} ${c.courseNumber}`);
+        saveSchedule();
+        draw();
+        if (conflicts.length) {
+            alert(`⚠️ UNAVAILABLE-TIME CONFLICT!\n\nThis block overlaps with:\n- ${[...new Set(conflicts)].join('\n- ')}\n\nThe block was still added. Automatic generation will avoid it.`);
+        }
+        const labelInput = document.getElementById('avoid-label');
+        if (labelInput) labelInput.value = '';
+    }
+
+    function removeAvoidTime(id) {
+        avoidTimes = avoidTimes.filter(a => a.id !== id);
+        saveSchedule();
+        draw();
+    }
+
+    function meetingConflictsWithAvoid(m, a) {
+        if (!m?.[a.day]) return false;
+        const start = toMins(m.beginTime), end = toMins(m.endTime);
+        if (start === null || end === null) return false;
+        return start < a.end && a.start < end;
+    }
+
+    function courseConflictsWithAvoid(c, blocks = avoidTimes) {
+        return getMeetings(c).some(m => blocks.some(a => meetingConflictsWithAvoid(m, a)));
+    }
+
+    function coursesConflict(a, b) {
+        return getMeetings(a).some(am => getMeetings(b).some(bm => meetingsConflict(am, bm)));
+    }
+
+    function getCourseCode(c) {
+        return decodeEntities(c?.subjectCourse || `${c?.subject || ''}${c?.courseNumber || ''}`);
+    }
+
+    function openGenerator() {
+        const backdrop = document.getElementById('generator-backdrop');
+        if (!backdrop) return;
+        generatedSchedules = [];
+        const results = document.getElementById('generator-results');
+        const status = document.getElementById('generator-status');
+        if (results) results.innerHTML = '';
+        if (status) status.textContent = '';
+        updateGeneratorSummary();
+        backdrop.classList.add('open');
+    }
+
+    function closeGenerator() {
+        document.getElementById('generator-backdrop')?.classList.remove('open');
+    }
+
+    function updateGeneratorSummary() {
+        const el = document.getElementById('generator-summary');
+        if (!el) return;
+        if (!myClasses.length) {
+            el.innerHTML = '<b>No courses selected.</b> Add one section of each course you want, then open the generator again.';
+            return;
+        }
+        const codes = [...new Set(myClasses.map(getCourseCode))];
+        const pinCount = pinnedCrns.size;
+        const avoidCount = avoidTimes.length;
+        el.innerHTML = `<b>Required courses:</b> ${escapeHtml(codes.join(', '))}<br><b>Fixed sections:</b> ${pinCount} pinned · <b>Unavailable blocks:</b> ${avoidCount}`;
+    }
+
+    function buildGeneratorComponents() {
+        const desiredCodes = [...new Set(myClasses.map(getCourseCode).filter(Boolean))];
+        if (!desiredCodes.length) return {error: 'Add at least one course to the current schedule first.'};
+        const allByCode = new Map();
+        rawCourseData.data.forEach(c => {
+            const code = getCourseCode(c);
+            if (!allByCode.has(code)) allByCode.set(code, []);
+            allByCode.get(code).push(c);
+        });
+        const components = [];
+        for (const code of desiredCodes) {
+            const seedCourses = myClasses.filter(c => getCourseCode(c) === code);
+            const seedCampuses = new Set(seedCourses.map(c => decodeEntities(c?.campusDescription || '')).filter(Boolean));
+            let all = allByCode.get(code) || [];
+            if (seedCampuses.size) all = all.filter(c => seedCampuses.has(decodeEntities(c?.campusDescription || '')));
+            if (!all.length) return {error: `No matching-campus sections found for ${code}.`};
+            const linked = all.filter(c => c?.isSectionLinked && c?.linkIdentifier);
+            const linkIds = [...new Set(linked.map(c => String(c.linkIdentifier)))];
+            const groups = linkIds.length
+                ? linkIds.map(linkId => ({id: `${code}:${linkId}`, label: `${code} (${linkId})`, candidates: all.filter(c => String(c.linkIdentifier) === linkId)}))
+                : [{id: code, label: code, candidates: all}];
+            for (const group of groups) {
+                const pins = group.candidates.filter(c => pinnedCrns.has(courseKey(c)));
+                if (pins.length > 1) return {error: `${group.label} has more than one pinned section. Unpin all but one before generating.`};
+                if (pins.length === 1) {
+                    if (courseConflictsWithAvoid(pins[0])) return {error: `Pinned ${group.label} (CRN ${courseKey(pins[0])}) overlaps an unavailable-time block.`};
+                    group.candidates = pins;
+                    group.pinned = true;
+                } else {
+                    group.candidates = group.candidates.filter(c => !courseConflictsWithAvoid(c));
+                }
+                if (!group.candidates.length) return {error: `No usable sections remain for ${group.label} after applying unavailable times.`};
+                components.push(group);
+            }
+        }
+        components.sort((a,b) => Number(!a.pinned) - Number(!b.pinned) || a.candidates.length - b.candidates.length || a.id.localeCompare(b.id));
+        return {components, desiredCodes};
+    }
+
+    function scheduleMetrics(courses) {
+        const perDay = Object.fromEntries(weekdays.map(day => [day, []]));
+        courses.forEach(c => getMeetings(c).forEach(m => {
+            const start = toMins(m.beginTime), end = toMins(m.endTime);
+            if (start === null || end === null) return;
+            weekdays.forEach(day => { if (m?.[day]) perDay[day].push([start,end]); });
+        }));
+        let gaps = 0, days = 0, earliest = null, latest = null, fridayMeetings = 0;
+        const startsByDay = {}, endsByDay = {};
+        weekdays.forEach(day => {
+            const intervals = perDay[day].sort((a,b) => a[0]-b[0] || a[1]-b[1]);
+            if (!intervals.length) return;
+            days++;
+            startsByDay[day] = intervals[0][0];
+            endsByDay[day] = intervals[intervals.length-1][1];
+            earliest = earliest === null ? intervals[0][0] : Math.min(earliest, intervals[0][0]);
+            latest = latest === null ? intervals[intervals.length-1][1] : Math.max(latest, intervals[intervals.length-1][1]);
+            for (let i=1; i<intervals.length; i++) gaps += Math.max(0, intervals[i][0] - intervals[i-1][1]);
+            if (day === 'friday') fridayMeetings = intervals.length;
+        });
+        const credits = courses.reduce((sum,c) => sum + getCredits(c), 0);
+        return {gaps, days, earliest, latest, fridayMeetings, startsByDay, endsByDay, credits};
+    }
+
+    function generatorPreferences() {
+        return {
+            gaps: document.getElementById('pref-gaps')?.checked !== false,
+            days: document.getElementById('pref-days')?.checked !== false,
+            late: !!document.getElementById('pref-late')?.checked,
+            earlyFinish: !!document.getElementById('pref-early-finish')?.checked,
+            noFriday: !!document.getElementById('pref-no-friday')?.checked
+        };
+    }
+
+    function schedulePenalty(metrics, prefs) {
+        let score = 0;
+        score += metrics.gaps * (prefs.gaps ? 1 : 0.05);
+        score += metrics.days * (prefs.days ? 120 : 5);
+        if (prefs.late) Object.values(metrics.startsByDay).forEach(start => { score += Math.max(0, 600 - start) * 1.8; });
+        if (prefs.earlyFinish) Object.values(metrics.endsByDay).forEach(end => { score += Math.max(0, end - 1020) * 1.5; });
+        if (prefs.noFriday) score += metrics.fridayMeetings * 360;
+        return score;
+    }
+
+    function sameCourseSet(a, b) {
+        if (a.length !== b.length) return false;
+        const aa = a.map(courseKey).sort();
+        const bb = b.map(courseKey).sort();
+        return aa.every((x,i) => x === bb[i]);
+    }
+
+    function generateSchedules() {
+        const status = document.getElementById('generator-status');
+        const results = document.getElementById('generator-results');
+        if (status) status.textContent = 'Searching…';
+        if (results) results.innerHTML = '';
+        const built = buildGeneratorComponents();
+        if (built.error) {
+            if (status) status.textContent = built.error;
+            return;
+        }
+        const {components} = built;
+        const prefs = generatorPreferences();
+        const top = [];
+        const MAX_NODES = 250000;
+        const MAX_RESULTS = 8;
+        let nodes = 0, complete = 0, truncated = false;
+        const current = [];
+        const originalCrns = new Set(myClasses.map(courseKey));
+        const orderedComponents = components.map(group => ({
+            ...group,
+            orderedCandidates: [...group.candidates].sort((a,b) => Number(!originalCrns.has(courseKey(a))) - Number(!originalCrns.has(courseKey(b))) || courseKey(a).localeCompare(courseKey(b)))
+        }));
+
+        function keepSolution(courses) {
+            complete++;
+            const metrics = scheduleMetrics(courses);
+            const penalty = schedulePenalty(metrics, prefs);
+            const item = {courses: [...courses], metrics, penalty};
+            const dupe = top.some(x => sameCourseSet(x.courses, item.courses));
+            if (dupe) return;
+            top.push(item);
+            top.sort((a,b) => a.penalty - b.penalty || a.metrics.gaps - b.metrics.gaps || a.metrics.days - b.metrics.days);
+            if (top.length > MAX_RESULTS) top.pop();
+        }
+
+        function walk(index) {
+            if (nodes++ >= MAX_NODES) { truncated = true; return; }
+            if (index >= orderedComponents.length) { keepSolution(current); return; }
+            const group = orderedComponents[index];
+            for (const candidate of group.orderedCandidates) {
+                if (current.some(existing => coursesConflict(candidate, existing))) continue;
+                current.push(candidate);
+                walk(index + 1);
+                current.pop();
+                if (truncated && nodes >= MAX_NODES) break;
+            }
+        }
+        walk(0);
+        generatedSchedules = top;
+        renderGeneratedSchedules(truncated, nodes, complete);
+    }
+
+    function metricTimeRange(m) {
+        if (m.earliest === null || m.latest === null) return 'untimed / by arrangement';
+        return `${formatMins(m.earliest)}–${formatMins(m.latest)}`;
+    }
+
+    function renderGeneratedSchedules(truncated, nodes, complete) {
+        const status = document.getElementById('generator-status');
+        const results = document.getElementById('generator-results');
+        if (!generatedSchedules.length) {
+            if (status) status.textContent = 'No conflict-free schedules found with the current pins and unavailable times.';
+            if (results) results.innerHTML = '';
+            return;
+        }
+        if (status) status.textContent = `${complete.toLocaleString()} valid combination${complete===1?'':'s'} checked${truncated ? ' (search limit reached)' : ''}.`;
+        if (!results) return;
+        results.innerHTML = '';
+        generatedSchedules.forEach((result, idx) => {
+            const card = document.createElement('div');
+            card.className = 'generator-result';
+            const m = result.metrics;
+            const gapLabel = m.gaps >= 60 ? `${Math.floor(m.gaps/60)}h ${m.gaps%60}m` : `${m.gaps}m`;
+            const sectionLines = [...result.courses].sort((a,b) => getCourseCode(a).localeCompare(getCourseCode(b))).map(c => {
+                const pin = pinnedCrns.has(courseKey(c)) ? '📌 ' : '';
+                return `${pin}<b>${escapeHtml(c.subject)} ${escapeHtml(c.courseNumber)}</b> · CRN ${escapeHtml(courseKey(c))} · ${escapeHtml(getProfessors(c))} · ${escapeHtml(getMeetings(c).map(meetingText).join(' • ') || 'Meeting TBD')}`;
+            }).join('<br>');
+            card.innerHTML = `<div class="generator-result-top"><div><div class="generator-rank">#${idx+1}</div><div class="generator-metrics">${m.days} day${m.days===1?'':'s'} · ${gapLabel} weekly gaps · ${escapeHtml(metricTimeRange(m))} · ${Number.isInteger(m.credits)?m.credits:m.credits.toFixed(1)} credits</div></div><button class="generator-use" onclick="useGeneratedSchedule(${idx})">Use Schedule</button></div><div class="generator-sections">${sectionLines}</div>`;
+            results.appendChild(card);
+        });
+    }
+
+    function useGeneratedSchedule(index) {
+        const result = generatedSchedules[index];
+        if (!result) return;
+        myClasses = [...result.courses];
+        const selected = new Set(myClasses.map(courseKey));
+        pinnedCrns = new Set([...pinnedCrns].filter(crn => selected.has(crn)));
+        saveSchedule();
+        draw();
+        updateGeneratorSummary();
+        closeGenerator();
     }
 
     function populateFilterOptions() {
@@ -270134,11 +270552,12 @@ const rawCourseData = {
     }
 
     function clearAll() {
-        if (myClasses.length === 0) return;
+        if (myClasses.length === 0 && avoidTimes.length === 0) return;
         const scheduleName = savedSchedules[activeSlot]?.name || `Schedule ${activeSlot}`;
-        if (confirm(`Are you sure you want to clear ${scheduleName}?`)) {
+        if (confirm(`Are you sure you want to clear all classes and unavailable times from ${scheduleName}?`)) {
             myClasses = [];
             pinnedCrns.clear();
+            avoidTimes = [];
             saveSchedule();
             draw();
         }
@@ -270165,6 +270584,43 @@ const rawCourseData = {
         const crnList = [];
         const gridRect = document.getElementById('grid-bg').getBoundingClientRect();
         const colWidth = (gridRect.width - 80) / 5;
+
+        if (avoidTimes.length) {
+            const title = document.createElement('div');
+            title.className = 'list-section-title';
+            title.textContent = 'Unavailable times';
+            list.appendChild(title);
+            avoidTimes.forEach(a => {
+                const item = document.createElement('div');
+                item.className = 'avoid-item';
+                item.innerHTML = `<div class="avoid-remove" title="Remove unavailable time">✕</div><b>${escapeHtml(dayLabels[a.day] || a.day)} ${escapeHtml(formatMins(a.start))}-${escapeHtml(formatMins(a.end))}</b>${a.label ? `<div>${escapeHtml(a.label)}</div>` : ''}`;
+                item.querySelector('.avoid-remove').onclick = () => removeAvoidTime(a.id);
+                list.appendChild(item);
+            });
+        }
+        if (myClasses.length) {
+            const title = document.createElement('div');
+            title.className = 'list-section-title';
+            title.textContent = 'Classes';
+            list.appendChild(title);
+        }
+
+        avoidTimes.forEach(a => {
+            const dayIdx = weekdays.indexOf(a.day);
+            if (dayIdx < 0 || a.end <= 480 || a.start >= 1320) return;
+            const visibleStart = Math.max(a.start, 480);
+            const visibleEnd = Math.min(a.end, 1320);
+            const topPercent = ((visibleStart - 480) / 840) * 100;
+            const heightPercent = ((visibleEnd - visibleStart) / 840) * 100;
+            const block = document.createElement('div');
+            block.className = 'avoid-block';
+            block.style.width = (colWidth - 4) + 'px';
+            block.style.height = Math.max(14, heightPercent * gridRect.height / 100 - 4) + 'px';
+            block.style.top = (topPercent * gridRect.height / 100 + 2) + 'px';
+            block.style.left = (80 + dayIdx * colWidth + 2) + 'px';
+            block.innerHTML = `Unavailable${a.label ? `<br>${escapeHtml(a.label)}` : ''}`;
+            overlay.appendChild(block);
+        });
 
         myClasses.forEach(c => {
             totalCredits += getCredits(c);
@@ -270235,8 +270691,8 @@ const rawCourseData = {
         document.getElementById('total-credits').innerText = Number.isInteger(totalCredits) ? totalCredits : totalCredits.toFixed(1);
         document.getElementById('crn-sync').value = crnList.join(', ');
         if (myClasses.length === 0) {
-            list.innerHTML = '<div style="text-align:center; color:#ccc; margin-top:20px;">No classes added yet</div>';
             document.getElementById('crn-sync').value = '';
+            if (avoidTimes.length === 0) list.innerHTML = '<div style="text-align:center; color:#ccc; margin-top:20px;">No classes or unavailable times added yet</div>';
         }
         if (typeof renderSearchResults === 'function') renderSearchResults();
     }
@@ -270245,8 +270701,12 @@ const rawCourseData = {
         const key = courseKey(c);
         if (myClasses.find(x => courseKey(x) === key)) return;
         const conflicts = checkConflicts(c);
-        if (conflicts.length > 0) {
-            alert(`⚠️ TIME CONFLICT!\n\nThis class overlaps with:\n- ${conflicts.join('\n- ')}\n\n(The class will still be added side-by-side.)`);
+        const blocked = courseConflictsWithAvoid(c);
+        if (conflicts.length > 0 || blocked) {
+            const lines = [];
+            if (conflicts.length) lines.push(`Overlaps class${conflicts.length>1?'es':''}:\n- ${conflicts.join('\n- ')}`);
+            if (blocked) lines.push('Overlaps an unavailable-time block.');
+            alert(`⚠️ TIME CONFLICT!\n\n${lines.join('\n\n')}\n\n(The class will still be added. Class conflicts display side-by-side.)`);
         }
         myClasses.push(c);
         saveSchedule();
@@ -270266,6 +270726,7 @@ const rawCourseData = {
         const requestedCrns = input.split(/[\s,]+/).map(s => s.trim()).filter(Boolean);
         myClasses = [];
         const conflictPairs = new Set();
+        const blockedCourses = new Set();
 
         requestedCrns.forEach(crn => {
             const course = rawCourseData.data.find(c => courseKey(c) === crn);
@@ -270274,6 +270735,7 @@ const rawCourseData = {
             checkConflicts(course).forEach(existingName => {
                 conflictPairs.add(`${existingName} ↔ ${course.subject} ${course.courseNumber}`);
             });
+            if (courseConflictsWithAvoid(course)) blockedCourses.add(`${course.subject} ${course.courseNumber}`);
             myClasses.push(course);
         });
 
@@ -270281,8 +270743,11 @@ const rawCourseData = {
         pinnedCrns = new Set([...pinnedCrns].filter(crn => selectedAfterLoad.has(crn)));
         saveSchedule();
         draw();
-        if (conflictPairs.size > 0) {
-            alert(`⚠️ TIME CONFLICT${conflictPairs.size > 1 ? 'S' : ''}!\n\n${[...conflictPairs].join('\n')}\n\nConflicting classes are displayed side-by-side.`);
+        if (conflictPairs.size > 0 || blockedCourses.size > 0) {
+            const parts = [];
+            if (conflictPairs.size) parts.push([...conflictPairs].join('\n'));
+            if (blockedCourses.size) parts.push(`Unavailable-time overlap:\n- ${[...blockedCourses].join('\n- ')}`);
+            alert(`⚠️ TIME CONFLICT${conflictPairs.size + blockedCourses.size > 1 ? 'S' : ''}!\n\n${parts.join('\n\n')}\n\nClass conflicts are displayed side-by-side. Automatic generation will avoid unavailable blocks.`);
         }
     }
 
@@ -270345,6 +270810,7 @@ const rawCourseData = {
     window.onload = () => {
         buildBackground();
         populateFilterOptions();
+        populateAvoidTimeOptions();
         restoreSchedules();
         draw();
         window.onresize = draw;
